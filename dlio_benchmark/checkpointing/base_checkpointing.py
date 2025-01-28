@@ -14,18 +14,24 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 """
+import logging
 import os
 import math
+import sys
 from abc import ABC, abstractmethod
 
+from dlio_benchmark.common.constants import MODULE_CHECKPOINT
 from dlio_benchmark.common.enumerations import CheckpointLocationType
 from dlio_benchmark.storage.storage_factory import StorageFactory
 from dlio_benchmark.utils.config import ConfigArguments
-from dlio_benchmark.utils.utility import DLIOMPI
+from dlio_benchmark.utils.utility import DLIOMPI, Profile
+
+dlp = Profile(MODULE_CHECKPOINT)
 
 
 class BaseCheckpointing(ABC):
 
+    @dlp.log_init
     def __init__(self, ext):
         self.ext = ext
         self.args = ConfigArguments.get_instance()
@@ -67,7 +73,9 @@ class BaseCheckpointing(ABC):
     def get_name(self, suffix):
         return os.path.join(self.args.checkpoint_folder, f"{suffix}.{self.ext}")
 
+    @dlp.log
     def get_layer_index(self, rank, tensor_parallelism, pipeline_parallelism, total_layers):
+        logging.info(f'Rank: {rank} - TP/PP/Layers: {tensor_parallelism}/{pipeline_parallelism}/{total_layers}')
         if tensor_parallelism > 1:
             total_layers = total_layers + tensor_parallelism
         
@@ -87,7 +95,7 @@ class BaseCheckpointing(ABC):
             end_layer = start_layer + num_layers_per_pipeline - 1
         return start_layer, end_layer
     
-    @abstractmethod
+    @dlp.log
     def checkpoint(self, epoch, step_number):
         my_rank = DLIOMPI.get_instance().rank()
         rank_to_checkpoint = my_rank
@@ -100,6 +108,8 @@ class BaseCheckpointing(ABC):
                 self.save_state(suffix=f"optimizer-{epoch}-{step_number}-{my_rank}", state=self.optimization_state)
             
             start_layer, end_layer = self.get_layer_index(my_rank,self.args.tensor_parallelism, self.args.pipeline_parallelism, self.args.num_layers)
+            logging.error(f'My rank:  {my_rank} - {(start_layer, end_layer)}, {self.args.tensor_parallelism}, {self.args.pipeline_parallelism}, {self.args.num_layers}')
+            sys.stdout.write(f'My rank:  {my_rank} - {self.args.tensor_parallelism}, {self.args.pipeline_parallelism}, {self.args.num_layers}')
             for layer_index in range(start_layer, end_layer + 1):
                 self.save_state(suffix=f"layer-{layer_index}-{epoch}-{step_number}-{my_rank}", state=self.layer_state)
 

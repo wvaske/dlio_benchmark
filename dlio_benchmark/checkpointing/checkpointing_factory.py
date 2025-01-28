@@ -16,17 +16,22 @@
 """
 import logging
 
+from dlio_benchmark.common.constants import MODULE_CHECKPOINT
 from dlio_benchmark.common.enumerations import CheckpointMechanismType
 from dlio_benchmark.common.error_code import ErrorCodes
 from dlio_benchmark.utils.config import ConfigArguments
-from dlio_benchmark.utils.utility import utcnow, DLIOMPI
+from dlio_benchmark.utils.utility import utcnow, DLIOMPI, Profile
 
+dlp = Profile(MODULE_CHECKPOINT)
 
 class CheckpointingFactory(object):
+
+    @dlp.log_init
     def __init__(self):
         pass
 
     @staticmethod
+    @dlp.log
     def get_mechanism(checkpoint_mechanism_type):
         _args = ConfigArguments.get_instance()
         if _args.checkpoint_mechanism_class is not None:
