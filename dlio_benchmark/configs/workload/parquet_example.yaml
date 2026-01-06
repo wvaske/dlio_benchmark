@@ -1,0 +1,60 @@
+
+model:
+  name: parquet_benchmark
+
+framework: pytorch
+
+workflow:
+  generate_data: False
+  train: True
+
+dataset:
+  data_folder: /mnt/nvme/data/parquet
+  format: parquet
+  compression: none
+  num_files_train: 2400
+  num_samples_per_file: 256
+  parquet_row_group_size: 64
+  record_length: 0  # Not used for parquet
+  record_length_stdev: 0
+  record_length_resize: 0
+
+  # Parquet-specific field specifications
+  parquet_field_specs:
+    t5_encodings:
+      dtype: bytes
+      length: 2097313
+      variable_length: False
+      read: True
+    clip_encodings:
+      dtype: bytes
+      length: 1634
+      variable_length: False
+      read: True
+    mean:
+      dtype: bytes
+      length: 32929
+      read: False
+    logvar:
+      dtype: bytes
+      length: 32929
+      read: False
+    timestep:
+      dtype: bytes
+      length: 28
+      read: True
+
+reader:
+  data_loader: pytorch
+  batch_size: 256
+  read_threads: 4
+  file_shuffle: seed
+#  sample_shuffle: seed
+  prefetch_size: 2
+
+train:
+  epochs: 1
+  computation_time: 0.001
+
+
+

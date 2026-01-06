@@ -132,6 +132,7 @@ class FormatType(Enum):
     INDEXED_BINARY = 'indexed_binary'
     MMAP_INDEXED_BINARY = 'mmap_indexed_binary'
     SYNTHETIC = 'synthetic'
+    PARQUET = 'parquet'
     
     def __str__(self):
         return self.value

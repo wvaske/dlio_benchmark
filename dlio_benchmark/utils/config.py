@@ -59,6 +59,7 @@ class ConfigArguments:
     record_length_resize: int = 0
     num_files_train: int = 8
     num_samples_per_file: int = 1
+    parquet_field_specs = dict()
     batch_size: int = 1
     epochs: int = 1
     seed_change_epoch: bool = True
@@ -795,6 +796,10 @@ def LoadConfig(args, config):
             args.record_length_stdev = config['dataset']['record_length_bytes_stdev']
         if 'record_length_bytes_resize' in config['dataset']:
             args.record_length_resize = config['dataset']['record_length_bytes_resize']
+        if 'parquet_field_specs' in config['dataset']:
+            args.parquet_field_specs = config['dataset']['parquet_field_specs']
+        if 'parquet_row_group_size' in config['dataset']:
+            args.parquet_row_group_size = config['dataset']['parquet_row_group_size']
         if 'num_files_train' in config['dataset']:
             args.num_files_train = config['dataset']['num_files_train']
         if 'num_files_eval' in config['dataset']:
