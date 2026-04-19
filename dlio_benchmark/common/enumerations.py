@@ -134,6 +134,7 @@ class FormatType(Enum):
     MMAP_INDEXED_BINARY = 'mmap_indexed_binary'
     SYNTHETIC = 'synthetic'
     PARQUET = 'parquet'
+    PARQUET_STORAGE = 'parquet_storage'
     ARROW_IPC = 'arrow_ipc'
 
     def __str__(self):
@@ -165,6 +166,8 @@ class FormatType(Enum):
             return FormatType.SYNTHETIC
         elif FormatType.PARQUET.value == value:
             return FormatType.PARQUET
+        elif FormatType.PARQUET_STORAGE.value == value:
+            return FormatType.PARQUET_STORAGE
         elif FormatType.ARROW_IPC.value == value:
             return FormatType.ARROW_IPC
 

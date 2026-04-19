@@ -119,6 +119,10 @@ class ReaderFactory(object):
             else:
                 from dlio_benchmark.reader.parquet_reader import ParquetReader
                 return ParquetReader(dataset_type, thread_index, epoch_number)
+        elif type == FormatType.PARQUET_STORAGE:
+            # Storage benchmark mode: reads raw bytes without decode
+            from dlio_benchmark.reader.parquet_storage_reader import ParquetStorageReader
+            return ParquetStorageReader(dataset_type, thread_index, epoch_number)
         elif type == FormatType.ARROW_IPC:
             if _args.odirect == True:
                 raise Exception("O_DIRECT for %s format is not yet supported." %type)

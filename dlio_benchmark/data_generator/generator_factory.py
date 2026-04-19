@@ -61,7 +61,9 @@ class GeneratorFactory(object):
         elif type == FormatType.INDEXED_BINARY or type == FormatType.MMAP_INDEXED_BINARY:
             from dlio_benchmark.data_generator.indexed_binary_generator import IndexedBinaryGenerator
             return IndexedBinaryGenerator()
-        elif type == FormatType.PARQUET:
+        elif type == FormatType.PARQUET or type == FormatType.PARQUET_STORAGE:
+            # PARQUET_STORAGE uses the same generator as PARQUET
+            # (storage benchmark mode only affects reading, not writing)
             from dlio_benchmark.data_generator.parquet_generator import ParquetGenerator
             return ParquetGenerator()
         elif type == FormatType.ARROW_IPC:
