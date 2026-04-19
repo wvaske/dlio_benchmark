@@ -61,5 +61,11 @@ class GeneratorFactory(object):
         elif type == FormatType.INDEXED_BINARY or type == FormatType.MMAP_INDEXED_BINARY:
             from dlio_benchmark.data_generator.indexed_binary_generator import IndexedBinaryGenerator
             return IndexedBinaryGenerator()
+        elif type == FormatType.PARQUET:
+            from dlio_benchmark.data_generator.parquet_generator import ParquetGenerator
+            return ParquetGenerator()
+        elif type == FormatType.ARROW_IPC:
+            from dlio_benchmark.data_generator.arrow_ipc_generator import ArrowIPCGenerator
+            return ArrowIPCGenerator()
         else:
             raise Exception(str(ErrorCodes.EC1001))
