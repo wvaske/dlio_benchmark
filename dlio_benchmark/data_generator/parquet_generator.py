@@ -99,9 +99,10 @@ class ParquetGenerator(DataGenerator):
     def __init__(self):
         super().__init__()
         # Get parquet-specific configuration
-        parquet_config = getattr(self._args, 'parquet', {}) or {}
-        self.parquet_columns = parquet_config.get('columns', [])
-        self.row_group_size = parquet_config.get('row_group_size', 1024)
+        # Config system loads dataset.parquet.columns -> args.parquet_columns
+        # and dataset.parquet.row_group_size -> args.parquet_row_group_size
+        self.parquet_columns = getattr(self._args, 'parquet_columns', [])
+        self.row_group_size = getattr(self._args, 'parquet_row_group_size', 1024)
 
     def _build_schema(self, record_size=None):
         """Build PyArrow schema from configuration.
@@ -159,11 +160,13 @@ class ParquetGenerator(DataGenerator):
             else:
                 # Vector column - generate as binary blobs for efficiency
                 # This avoids FixedSizeListArray which has 4x bloat
-                bytes_per_sample = size * np.dtype(np_dtype).itemsize
-                binary_data = []
-                for _ in range(num_samples):
-                    arr = gen_random_tensor(shape=(size,), dtype=np_dtype, rng=rng)
-                    binary_data.append(arr.tobytes())
+                # Generate all data at once as 2D array (vectorized, much faster)
+                data = gen_random_tensor(shape=(num_samples, size), dtype=np_dtype, rng=rng)
+                # Ensure contiguous memory for efficient tobytes()
+                if not data.flags['C_CONTIGUOUS']:
+                    data = np.ascontiguousarray(data)
+                # Convert each row to bytes
+                binary_data = [data[i].tobytes() for i in range(num_samples)]
                 return name, pa.array(binary_data, type=pa.large_binary())
 
         if dtype == 'binary':
